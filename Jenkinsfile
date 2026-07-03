@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/<yourusername>/flask-cicd-app.git'
+                url: 'https://github.com/GohelG/flask-cicd-app.git'
             }
         }
 
@@ -49,13 +49,13 @@ pipeline {
     post {
 
         success {
-            mail to: 'your@email.com',
+            mail to: 'awsgautam145@gmail.com',
                  subject: "SUCCESS: Jenkins Build",
                  body: "Deployment completed successfully."
         }
 
         failure {
-            mail to: 'your@email.com',
+            mail to: 'awsgautam145@gmail.com',
                  subject: "FAILED: Jenkins Build",
                  body: "Build failed."
         }
