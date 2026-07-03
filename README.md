@@ -37,17 +37,9 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
 
 ---
 
-# Sample Python Repository
+# Python Repository
 
-Fork any of the following repositories:
-
-### Flask Tutorial
-
-https://github.com/pallets/flask/tree/main/examples/tutorial
-
-### Heroku Python Example
-
-https://github.com/heroku/python-getting-started
+https://github.com/GohelG/flask-cicd-app.git
 
 ---
 
@@ -102,54 +94,208 @@ Install the following software before starting.
 
 # Jenkins CI/CD Pipeline
 
-## Install Java
-
-```bash
-sudo apt update
-
-sudo apt install openjdk-17-jdk -y
-```
-
-Verify
-
-```bash
-java -version
-```
-
----
+# Installation Guide
 
 ## Install Jenkins
 
+### Update Package Lists
+
 ```bash
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
-/usr/share/keyrings/jenkins-keyring.asc > /dev/null
-
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-/etc/apt/sources.list.d/jenkins.list > /dev/null
-
 sudo apt update
-
-sudo apt install jenkins -y
 ```
 
-Start Jenkins
+### Install Required Dependencies
+
+```bash
+sudo apt install -y wget curl gnupg
+```
+
+### Add Jenkins GPG Key
+
+```bash
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
+sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+```
+
+### Add Jenkins Repository
+
+```bash
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+```
+
+### Install Java
+
+```bash
+sudo apt update
+sudo apt install -y fontconfig openjdk-17-jre
+```
+
+### Install Jenkins
+
+```bash
+sudo apt update
+sudo apt install -y jenkins
+```
+
+### Start Jenkins Service
 
 ```bash
 sudo systemctl enable jenkins
-
 sudo systemctl start jenkins
+sudo systemctl status jenkins
 ```
 
----
+### Unlock Jenkins
 
-## Install Python Packages
+Open your browser:
+
+```
+http://localhost:8080
+```
+
+Retrieve the initial administrator password:
 
 ```bash
-sudo apt install python3-pip python3-venv git -y
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
 ---
+
+# Install Git
+
+### Update Package Lists
+
+```bash
+sudo apt update
+```
+
+### Install Git
+
+```bash
+sudo apt install git -y
+```
+
+### Verify Installation
+
+```bash
+git --version
+```
+
+### Install Latest Git (Optional)
+
+```bash
+sudo add-apt-repository ppa:git-core/ppa -y
+sudo apt update
+sudo apt install git -y
+```
+
+### Configure Git
+
+```bash
+git config --global user.name "Your Name"
+
+git config --global user.email "youremail@example.com"
+```
+
+### Verify Configuration
+
+```bash
+git config --global --list
+```
+
+---
+
+# Install Python 3
+
+### Update Package Lists
+
+```bash
+sudo apt update
+```
+
+### Install Python
+
+```bash
+sudo apt install python3-full python3-pip python3-venv python3-pytest -y
+```
+
+### Create Virtual Environment
+
+```bash
+python3 -m venv .venv
+```
+
+### Activate Virtual Environment
+
+```bash
+source .venv/bin/activate
+```
+
+### Install Required Python Packages
+
+```bash
+pip install --upgrade pip
+pip install pytest
+```
+
+### Verify Installation
+
+```bash
+python3 --version
+
+pip3 --version
+
+pytest --version
+```
+
+---
+
+# Install MongoDB 8.x
+
+### Install Dependencies
+
+```bash
+sudo apt update
+sudo apt install -y gnupg curl
+```
+
+### Import MongoDB GPG Key
+
+```bash
+curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
+sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+```
+
+### Add MongoDB Repository
+
+```bash
+echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.2 multiverse" | \
+sudo tee /etc/apt/sources.list.d/mongodb-org-8.2.list
+```
+
+### Install MongoDB
+
+```bash
+sudo apt update
+sudo apt install -y mongodb-org
+```
+
+### Start MongoDB
+
+```bash
+sudo systemctl enable mongod
+sudo systemctl start mongod
+sudo systemctl status mongod
+```
+
+### Verify MongoDB
+
+```bash
+mongosh
+```
+
+_Note: If the MongoDB shell opens successfully, MongoDB is installed and running._
 
 ## Required Jenkins Plugins
 
@@ -192,7 +338,7 @@ Deploy to staging server.
 Example
 
 ```bash
-scp -r . user@staging-server:/var/www/flask-app
+scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-app
 ```
 
 ---
@@ -212,7 +358,7 @@ scp -r . user@staging-server:/var/www/flask-app
 Configure GitHub Webhook.
 
 ```
-http://<jenkins-server>:8080/github-webhook/
+http://jenkins-server-public-ip:8080/github-webhook/
 ```
 
 Trigger
@@ -331,7 +477,7 @@ staging
 Example
 
 ```bash
-scp -r . user@staging-server:/var/www/flask-app
+scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-app
 ```
 
 ---
