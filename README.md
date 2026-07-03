@@ -336,7 +336,7 @@ Deploy to staging server.
 Example
 
 ```bash
-scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-app
+scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-cicd-app
 ```
 
 ---
@@ -475,7 +475,7 @@ staging
 Example
 
 ```bash
-scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-app
+scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-cicd-app
 ```
 
 ---
