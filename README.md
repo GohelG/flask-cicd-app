@@ -92,8 +92,6 @@ Install the following software before starting.
 
 ---
 
-# Jenkins CI/CD Pipeline
-
 # Installation Guide
 
 ## Install Jenkins
@@ -642,85 +640,9 @@ or publish a GitHub Release.
 
 ---
 
-# Expected Output
-
-### Jenkins
-
-- Clone Repository
-- Install Dependencies
-- Run Tests
-- Deploy to Staging
-- Email Notification
-
-### GitHub Actions
-
-- Checkout Repository
-- Setup Python
-- Install Dependencies
-- Execute Pytest
-- Build Application
-- Deploy to Staging
-- Deploy to Production
-
----
-
-# Screenshots to Include
-
-## Jenkins
-
-- Jenkins Dashboard
-- Pipeline Configuration
-- Successful Build
-- Console Output
-- Email Notification
-
----
-
-## GitHub Actions
-
-- Repository Home
-- Branches (main & staging)
-- Workflow Running
-- Successful Workflow
-- Production Release Workflow
-- GitHub Secrets (values hidden)
-
----
-
-# Future Enhancements
-
-- Docker Support
-- Kubernetes Deployment
-- SonarQube Integration
-- Trivy Security Scanning
-- AWS EC2 Deployment
-- Azure VM Deployment
-- GCP Deployment
-- Slack Notifications
-- Microsoft Teams Notifications
-- Automatic Rollback
-
----
-
-# Submission Checklist
-
-- Jenkins Installed
-- Jenkinsfile Created
-- GitHub Actions Workflow Created
-- README.md Updated
-- Main & Staging Branches Available
-- GitHub Secrets Configured
-- Jenkins Credentials Configured
-- Successful Jenkins Build
-- Successful GitHub Actions Build
-- Deployment Verified
-- Screenshots Included
-
----
-
 # Author
 
 **Gautam Gohel**
 
-**Cloud Engineer | DevOps Engineer | System Administrator**
+**System Administrato | Cloud Engineer | DevOps Engineer**
 ````
