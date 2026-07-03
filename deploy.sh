@@ -1,7 +1,22 @@
 #!/bin/bash
+cd ~/flask_Practice
 
-echo "Deploying Flask Application..."
+# Create venv if not exists
+if [ ! -d venv ]; then
+    python3 -m venv venv
+fi
 
-pkill gunicorn || true
+# Activate venv
+source venv/bin/activate
 
-nohup gunicorn app:app -b 0.0.0.0:5000 &
+# Upgrade pip and install dependencies
+sudo apt update
+sudo apt install python3-pip -y
+sudo pip install --upgrade pip
+sudo pip install -r requirements.txt black pylint bandit pytest pytest-html
+
+# Ensure .env exists
+echo -e "mongosh "mongodb+srv://cluster0.h1rskct.mongodb.net/" --apiVersion 1 --username $Mango_USER --password $Mango_PWD" > .env
+
+# Run app
+sudo nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
