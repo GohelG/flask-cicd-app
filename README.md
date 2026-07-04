@@ -23,7 +23,7 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
 
 ## Architecture Diagram
 
-
+'''
                     Developer
                         │
                 Git Push / Pull Request
