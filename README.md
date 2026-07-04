@@ -1,10 +1,9 @@
-# CI/CD Pipelines for Flask Python Application## Project Overview
+# CI/CD Pipelines for Flask Python Application
 
+## Project Overview
 This project demonstrates two industry-standard Continuous Integration and Continuous Deployment (CI/CD) solutions for a Python Flask web application:
-
 1. **Jenkins CI/CD Pipeline**
 2. **GitHub Actions CI/CD Pipeline**
-
 Both pipelines automate the software delivery lifecycle by installing dependencies, executing unit tests, building the application, and deploying it to staging or production environments.
 ---
 # Project Objectives
@@ -14,7 +13,37 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
 - Deploy automatically to staging and production environments.
 - Secure deployment credentials using GitHub Secrets and Jenkins Credentials.
 - Configure automatic pipeline execution on every code change.
-
+---
+## Architecture Diagram
+                    Developer
+                        │
+                Git Push / Pull Request
+                        │
+                        ▼
+                GitHub Repository
+                        │
+      ┌─────────────────┴─────────────────┐
+      │                                   │
+      ▼                                   ▼
+ Jenkins Pipeline                 GitHub Actions
+      │                                   │
+ Checkout                         Checkout
+      │                                   │
+ Install Dependencies             Setup Python
+      │                                   │
+ Run Unit Tests                   Run Unit Tests
+      │                                   │
+ Build                            Build
+      │                                   │
+ Deploy                           Deploy
+      │                                   │
+      └───────────────┬───────────────────┘
+                      ▼
+               Gunicorn Service
+                      │
+                   Nginx
+                      │
+                 Flask Application
 ---
 
 # Technology Stack
