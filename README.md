@@ -23,7 +23,7 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
 
 ## Architecture Diagram
 
-'''
+```text
                     Developer
                         │
                 Git Push / Pull Request
@@ -54,6 +54,7 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
                       │
                  Flask Application
                  
+```
 
 ---
 
