@@ -640,6 +640,7 @@ Create the following secrets.
 
 ## CI/CD Workflow
 
+```text
 Developer
 │
 ▼
@@ -677,6 +678,7 @@ Deploy to Staging
 ↓
 Deploy to Production
 ──────────────────────────────
+```
 
 ---
 
