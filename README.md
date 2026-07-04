@@ -52,6 +52,7 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
                    Nginx
                       │
                  Flask Application
+                 
 
 ---
 
