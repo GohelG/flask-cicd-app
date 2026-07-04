@@ -1,74 +1,46 @@
-# CI/CD Pipelines for Flask Python Application
-
-## Project Overview
-
+# CI/CD Pipelines for Flask Python Application## Project Overview
 This project demonstrates two industry-standard Continuous Integration and Continuous Deployment (CI/CD) solutions for a Python Flask web application:
-
-1. **Jenkins CI/CD Pipeline**
-2. **GitHub Actions CI/CD Pipeline**
+1. **Jenkins CI/CD Pipeline**2. **GitHub Actions CI/CD Pipeline**
 
 Both pipelines automate the software delivery lifecycle by installing dependencies, executing unit tests, building the application, and deploying it to staging or production environments.
-
----
-
-# Project Objectives
-
-- Automate software build, testing, and deployment.
-- Implement CI/CD using Jenkins and GitHub Actions.
-- Execute automated unit tests using Pytest.
-- Deploy automatically to staging and production environments.
-- Secure deployment credentials using GitHub Secrets and Jenkins Credentials.
-- Configure automatic pipeline execution on every code change.
-
----
-
-# Technology Stack
-
+---# Project Objectives- Automate software build, testing, and deployment.- Implement CI/CD using Jenkins and GitHub Actions.- Execute automated unit tests using Pytest.- Deploy automatically to staging and production environments.- Secure deployment credentials using GitHub Secrets and Jenkins Credentials.- Configure automatic pipeline execution on every code change.
+---# Technology Stack
 | Technology | Version |
 |------------|----------|
 | Python | 3.x |
 | Flask | Latest |
+| Nginx | Latest |
 | Jenkins | Latest LTS |
 | GitHub Actions | Latest |
 | Git | Latest |
 | Pytest | Latest |
 | Pip | Latest |
 | Ubuntu | 22.04 LTS |
-
----
-
-# Python Repository
-
+---# Python Repository
 https://github.com/GohelG/flask-cicd-app.git
+---# Repository Structure
 
----
-
-# Repository Structure
-
-```
 flask-app/
-
 ├── .github/
-│   └── workflows/
-│       └── ci-cd.yml
-│
+│ └── workflows/
+│ └── ci-cd.yml
 ├── Jenkinsfile
 ├── app.py
 ├── requirements.txt
 ├── tests/
-│   └── test_app.py
+│ └── test_app.py
 ├── README.md
 └── .gitignore
-```
+
 
 ---
 
 # Branch Structure
 
-```
+
 main
 staging
-```
+
 
 | Branch | Purpose |
 |----------|----------|
@@ -82,13 +54,14 @@ staging
 Install the following software before starting.
 
 - Ubuntu Server
+- Nginx
 - Git
 - Python 3
 - pip
 - Virtual Environment
 - Jenkins
 - Java 17
-- GitHub Account
+- GitHub 
 
 ---
 
@@ -146,16 +119,81 @@ sudo systemctl status jenkins
 
 ### Unlock Jenkins
 
-Open your browser:
+_Open your browser:_
 
-```
+
 http://localhost:8080
-```
 
-Retrieve the initial administrator password:
+
+_Retrieve the initial administrator password:_
 
 ```bash
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+---
+
+# Install Nginx (Reverse Proxy & Web Server)
+
+### Install Nginx
+
+```bash
+sudo apt update
+sudo apt install -y nginx
+```
+
+### Configure Reverse Proxy Server Block
+_Create a fresh configuration file for the Flask application to route external port `80` traffic to internal Gunicorn port `5000`:_
+
+```bash
+sudo nano /etc/nginx/sites-available/flask_app
+```
+
+Paste the following configurations:
+
+```nginx
+server {
+    listen 80;
+    server_name _; # Replace with domain name or Public IP if available
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location /static/ {
+        alias /var/www/flask-cicd-app/static/;
+    }
+}
+```
+
+### Activate Configuration & Restart Nginx
+_Enable your proxy block config, remove the default fallback file, and test syntax configurations before initializing the daemon process:_
+
+```bash
+# Link proxy architecture profile
+sudo ln -sf /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled/
+
+# Remove default server block
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Verify Nginx file integrity 
+sudo nginx -t
+
+# Start Engine
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+```
+
+### Configure Workspace Permissions
+_Ensure Nginx and deployment runners can interact with file directories properly:_
+
+```bash
+sudo chown -R jenkins:jenkins /var/www/flask-cicd-app
+sudo chmod -R 755 /var/www/flask-cicd-app
 ```
 
 ---
@@ -234,7 +272,7 @@ source .venv/bin/activate
 
 ```bash
 pip install --upgrade pip
-pip install pytest
+pip install pytest gunicorn
 ```
 
 ### Verify Installation
@@ -251,25 +289,31 @@ pytest --version
 
 # Install MongoDB 8.x
 
+### Check which release of Ubuntu
+
+```bash
+cat /etc/lsb-release
+```
+
 ### Install Dependencies
 
 ```bash
 sudo apt update
-sudo apt install -y gnupg curl
+sudo apt-get install gnupg curl
 ```
 
 ### Import MongoDB GPG Key
 
 ```bash
-curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
-sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
+   --dearmor
 ```
 
 ### Add MongoDB Repository
 
 ```bash
-echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.2 multiverse" | \
-sudo tee /etc/apt/sources.list.d/mongodb-org-8.2.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
 ```
 
 ### Install MongoDB
@@ -355,15 +399,15 @@ scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-cicd-app
 
 Configure GitHub Webhook.
 
-```
+
 http://jenkins-server-public-ip:8080/github-webhook/
-```
+
 
 Trigger
 
-```
+
 Push Event
-```
+
 
 ---
 
@@ -371,25 +415,20 @@ Push Event
 
 Configure SMTP under
 
-```
+
 Manage Jenkins
-
 ↓
-
 Configure System
-```
+
 
 Example
 
-```
+
 SMTP Server
-
 smtp.gmail.com
-
 Port
-
 587
-```
+
 
 Notifications sent for
 
@@ -402,8 +441,113 @@ Notifications sent for
 
 ## Workflow Location
 
-```
+
 .github/workflows/ci-cd.yml
+
+
+---
+
+## Complete GitHub Actions Workflow Code (`ci-cd.yml`)
+
+```yaml
+name: Flask Application CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - staging
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - staging
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest mongomock
+
+      - name: Run Unit Tests
+        env:
+          MONGO_URI: "mongodb://localhost:27017/test_student_db"
+          SECRET_KEY: "temporary_github_action_testing_key"
+        run: |
+          python3 -m pytest -p no:cacheprovider
+
+  deploy-staging:
+    needs: test-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Source Code to Staging Environment via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: \${{ secrets.STAGING_HOST }}
+          username: \${{ secrets.STAGING_USER }}
+          key: \${{ secrets.STAGING_KEY }}
+          source: "."
+          target: \${{ secrets.DEPLOY_PATH }}
+
+      - name: Restart Web Services on Staging
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.STAGING_HOST }}
+          username: \${{ secrets.STAGING_USER }}
+          key: \${{ secrets.STAGING_KEY }}
+          script: |
+            cd \${{ secrets.DEPLOY_PATH }}
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart gunicorn
+
+  deploy-production:
+    needs: test-and-build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Source Code to Production Server
+        uses: appleboy/scp-action@master
+        with:
+          host: \${{ secrets.PRODUCTION_HOST }}
+          username: \${{ secrets.PRODUCTION_USER }}
+          key: \${{ secrets.PRODUCTION_KEY }}
+          source: "."
+          target: \${{ secrets.DEPLOY_PATH }}
+
+      - name: Restart Production Web Stack Engine
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.PRODUCTION_HOST }}
+          username: \${{ secrets.PRODUCTION_USER }}
+          key: \${{ secrets.PRODUCTION_KEY }}
+          script: |
+            cd \${{ secrets.DEPLOY_PATH }}
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart gunicorn
 ```
 
 ---
@@ -414,75 +558,7 @@ Notifications sent for
 |----------|------------|
 | Pull Request | Build & Test |
 | Push to staging | Deploy to Staging |
-| Release Tag | Deploy to Production |
-
----
-
-## Workflow Jobs
-
-### Checkout
-
-```yaml
-actions/checkout@v4
-```
-
----
-
-### Setup Python
-
-```yaml
-actions/setup-python@v5
-```
-
----
-
-### Install Dependencies
-
-```bash
-python -m pip install --upgrade pip
-
-pip install -r requirements.txt
-```
-
----
-
-### Run Tests
-
-```bash
-pytest
-```
-
----
-
-### Build
-
-Example
-
-```bash
-python setup.py sdist
-```
-
----
-
-### Deploy to Staging
-
-Executed only on
-
-```
-staging
-```
-
-Example
-
-```bash
-scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-cicd-app
-```
-
----
-
-### Deploy to Production
-
-Executed only when a GitHub Release is published.
+| Release Tag (`v*`) | Deploy to Production |
 
 ---
 
@@ -490,21 +566,15 @@ Executed only when a GitHub Release is published.
 
 Go to
 
-```
+
 Repository
-
 ↓
-
 Settings
-
 ↓
-
 Secrets and Variables
-
 ↓
-
 Actions
-```
+
 
 Create the following secrets.
 
@@ -516,87 +586,51 @@ Create the following secrets.
 | PRODUCTION_HOST | Production IP |
 | PRODUCTION_USER | Production User |
 | PRODUCTION_KEY | Production SSH Key |
-| DEPLOY_PATH | Deployment Directory |
+| DEPLOY_PATH | Deployment Directory (e.g., /var/www/flask-cicd-app) |
 
 ---
 
 # CI/CD Workflow
 
-```
+
 Developer
-
-        │
-
-        ▼
-
+│
+▼
 GitHub Repository
-
-        │
-
-        ▼
-
+│
+▼
 ──────────────────────────────
-
 Jenkins Pipeline
-
 Checkout
-
 ↓
-
 Build
-
 ↓
-
 Install Dependencies
-
 ↓
-
 Run Tests
-
 ↓
-
 Deploy to Staging
-
 ↓
-
 Email Notification
-
 ──────────────────────────────
-
 OR
-
 ──────────────────────────────
-
 GitHub Actions
-
 Checkout
-
 ↓
-
 Setup Python
-
 ↓
-
 Install Dependencies
-
 ↓
-
 Run Tests
-
 ↓
-
 Build
-
 ↓
-
 Deploy to Staging
-
 ↓
-
 Deploy to Production
-
 ──────────────────────────────
-```
+
 
 ---
 
@@ -604,9 +638,7 @@ Deploy to Production
 
 ```bash
 git add .
-
 git commit -m "Updated application"
-
 git push origin main
 ```
 
@@ -618,9 +650,7 @@ Push changes to staging.
 
 ```bash
 git add .
-
 git commit -m "Testing GitHub Actions"
-
 git push origin staging
 ```
 
@@ -632,7 +662,6 @@ Create a release tag.
 
 ```bash
 git tag v1.0.0
-
 git push origin v1.0.0
 ```
 
@@ -641,8 +670,5 @@ or publish a GitHub Release.
 ---
 
 # Author
-
 **Gautam Gohel**
-
-**System Administrato | Cloud Engineer | DevOps Engineer**
-````
+**System Administrator | Cloud Engineer | DevOps Engineer**
