@@ -61,7 +61,7 @@ Install the following software before starting.
 - Virtual Environment
 - Jenkins
 - Java 17
-- GitHub 
+- GitHub Account
 
 ---
 
@@ -119,13 +119,13 @@ sudo systemctl status jenkins
 
 ### Unlock Jenkins
 
-_Open your browser:_
+Open your browser:
 
 
 http://localhost:8080
 
 
-_Retrieve the initial administrator password:_
+Retrieve the initial administrator password:
 
 ```bash
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
@@ -136,21 +136,18 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 # Install Nginx (Reverse Proxy & Web Server)
 
 ### Install Nginx
-
 ```bash
 sudo apt update
 sudo apt install -y nginx
 ```
 
 ### Configure Reverse Proxy Server Block
-_Create a fresh configuration file for the Flask application to route external port `80` traffic to internal Gunicorn port `5000`:_
-
+Create a fresh configuration file for the Flask application to route external port `80` traffic to internal Gunicorn port `5000`:
 ```bash
 sudo nano /etc/nginx/sites-available/flask_app
 ```
 
 Paste the following configurations:
-
 ```nginx
 server {
     listen 80;
@@ -171,8 +168,7 @@ server {
 ```
 
 ### Activate Configuration & Restart Nginx
-_Enable your proxy block config, remove the default fallback file, and test syntax configurations before initializing the daemon process:_
-
+Enable your proxy block config, remove the default fallback file, and test syntax configurations before initializing the daemon process:
 ```bash
 # Link proxy architecture profile
 sudo ln -sf /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled/
@@ -189,8 +185,7 @@ sudo systemctl enable nginx
 ```
 
 ### Configure Workspace Permissions
-_Ensure Nginx and deployment runners can interact with file directories properly:_
-
+Ensure Nginx and deployment runners can interact with file directories properly:
 ```bash
 sudo chown -R jenkins:jenkins /var/www/flask-cicd-app
 sudo chmod -R 755 /var/www/flask-cicd-app
@@ -289,31 +284,25 @@ pytest --version
 
 # Install MongoDB 8.x
 
-### Check which release of Ubuntu
-
-```bash
-cat /etc/lsb-release
-```
-
 ### Install Dependencies
 
 ```bash
 sudo apt update
-sudo apt-get install gnupg curl
+sudo apt install -y gnupg curl
 ```
 
 ### Import MongoDB GPG Key
 
 ```bash
-curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
-   sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
-   --dearmor
+curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
+sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
 ```
 
 ### Add MongoDB Repository
 
 ```bash
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.2 multiverse" | \
+sudo tee /etc/apt/sources.list.d/mongodb-org-8.2.list
 ```
 
 ### Install MongoDB
@@ -670,5 +659,7 @@ or publish a GitHub Release.
 ---
 
 # Author
+
 **Gautam Gohel**
+
 **System Administrator | Cloud Engineer | DevOps Engineer**
