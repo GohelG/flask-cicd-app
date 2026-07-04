@@ -80,7 +80,8 @@ https://github.com/GohelG/flask-cicd-app.git
 
 ## Repository Structure
 
-flask-app/
+```text
+flask-cicd-app/
 ├── .github/
 │ └── workflows/
 │ └── ci-cd.yml
@@ -91,6 +92,7 @@ flask-app/
 │ └── test_app.py
 ├── README.md
 └── .gitignore
+```
 
 ---
 
