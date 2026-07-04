@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<table class="table table-bordered">
+<h2>Student Directory</h2>
+
+<table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr>
             <th>Name</th>
@@ -11,17 +13,21 @@
         </tr>
     </thead>
     <tbody>
-    {% for student in students %}
+        <!-- The loop starts BEFORE the row containing the student variables -->
+        {% for student in students %}
         <tr>
             <td>{{ student.name }}</td>
             <td>{{ student.email }}</td>
             <td>{{ student.course }}</td>
             <td>
-                <a href="{{ url_for('update_student', student_id=student._id) }}" class="btn btn-warning btn-sm">Edit</a>
-                <a href="{{ url_for('delete_student', student_id=student._id) }}" class="btn btn-danger btn-sm">Delete</a>
+                <!-- Ensure your edit and delete links inject the correct ID parameter -->
+                <a href="{{ url_for('update_student', student_id=student._id) }}">Edit</a> | 
+                <a href="{{ url_for('delete_student', student_id=student._id) }}" onclick="return confirm('Are you sure?');">Delete</a>
             </td>
         </tr>
-    {% endfor %}
+        <!-- The loop ends AFTER the row block finishes -->
+        {% endfor %}
     </tbody>
 </table>
 {% endblock %}
+

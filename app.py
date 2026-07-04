@@ -5,16 +5,25 @@ from dotenv import load_dotenv
 import certifi
 import os
 
-# Load env vars
+# Load env vars from .env file
 load_dotenv()
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = os.getenv("MONGO_URI")
-app.secret_key = os.getenv("SECRET_KEY")
 
-# Use certifi CA bundle explicitly for cross-platform TLS reliability
-# (notably fixes common macOS certificate verification failures).
-mongo = PyMongo(app, tlsCAFile=certifi.where())
+# Set configurations (using MONGO_URI uniformly)
+app.config["MONGO_URI"] = os.getenv("MONGO_URI") or os.getenv("MONGO_URL") or "mongodb://localhost:27017/student_db"
+app.secret_key = os.getenv("SECRET_KEY", "default_fallback_secret_key")
+
+# Instantiate PyMongo globally
+mongo = PyMongo()
+
+# Initialize conditionally to support BOTH local tests and production Atlas SSL
+if "localhost" in app.config["MONGO_URI"] or "127.0.0.1" in app.config["MONGO_URI"]:
+    # Local development/testing: No SSL configuration required
+    mongo.init_app(app)
+else:
+    # Production Atlas/Remote Cluster: Secure TLS connection mandatory
+    mongo.init_app(app, tlsCAFile=certifi.where())
 
 # Home page -> list students
 @app.route('/')
@@ -51,7 +60,6 @@ def update_student(student_id):
         )
         return redirect(url_for('index'))
     return render_template('update_student.html', student=student)
-
 
 # Delete student
 @app.route('/delete/<student_id>')

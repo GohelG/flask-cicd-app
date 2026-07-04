@@ -4,8 +4,18 @@ from bson.objectid import ObjectId
 
 @pytest.fixture
 def client():
+    # 1. Update target configurations for the testing context
     app.config["TESTING"] = True
-    app.config["MONGO_URI"] = "mongodb://localhost:27017/test_student_db"  # test DB
+    app.config["MONGO_URI"] = "mongodb://localhost:27017/test_student_db"
+    
+    with app.app_context():
+        # 2. Reset the client cache to wipe old connection states
+        mongo.cx = None 
+        
+        # 3. Force Flask-PyMongo to re-initialize and build a clean local connection pool
+        mongo.init_app(app)
+
+    # 4. Create the test execution client
     client = app.test_client()
 
     # Setup: clear and create test data
@@ -17,11 +27,13 @@ def client():
             "email": "test@student.com",
             "course": "Flask"
         })
+        
     yield client
 
-    # Teardown: drop DB after test
+    # Teardown: drop DB after test run finishes
     with app.app_context():
-        mongo.cx.drop_database("test_student_db")
+        if mongo.cx:
+            mongo.cx.drop_database("test_student_db")
 
 
 def test_home_page(client):
@@ -50,7 +62,7 @@ def test_update_student(client):
 
 def test_delete_student(client):
     """Test deleting a student"""
-    # Add a temporary student
+    # Add a temporary student using the running test client configuration context
     with app.app_context():
         student_id = mongo.db.students.insert_one({
             "name": "Temp User",
