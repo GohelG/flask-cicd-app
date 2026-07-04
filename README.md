@@ -1,10 +1,24 @@
 # CI/CD Pipelines for Flask Python Application## Project Overview
+
 This project demonstrates two industry-standard Continuous Integration and Continuous Deployment (CI/CD) solutions for a Python Flask web application:
-1. **Jenkins CI/CD Pipeline**2. **GitHub Actions CI/CD Pipeline**
+
+1. **Jenkins CI/CD Pipeline**
+2. **GitHub Actions CI/CD Pipeline**
 
 Both pipelines automate the software delivery lifecycle by installing dependencies, executing unit tests, building the application, and deploying it to staging or production environments.
----# Project Objectives- Automate software build, testing, and deployment.- Implement CI/CD using Jenkins and GitHub Actions.- Execute automated unit tests using Pytest.- Deploy automatically to staging and production environments.- Secure deployment credentials using GitHub Secrets and Jenkins Credentials.- Configure automatic pipeline execution on every code change.
----# Technology Stack
+---
+# Project Objectives
+- Automate software build, testing, and deployment.
+- Implement CI/CD using Jenkins and GitHub Actions.
+- Execute automated unit tests using Pytest.
+- Deploy automatically to staging and production environments.
+- Secure deployment credentials using GitHub Secrets and Jenkins Credentials.
+- Configure automatic pipeline execution on every code change.
+
+---
+
+# Technology Stack
+
 | Technology | Version |
 |------------|----------|
 | Python | 3.x |
@@ -16,9 +30,14 @@ Both pipelines automate the software delivery lifecycle by installing dependenci
 | Pytest | Latest |
 | Pip | Latest |
 | Ubuntu | 22.04 LTS |
----# Python Repository
+---
+
+# Python Repository
 https://github.com/GohelG/flask-cicd-app.git
----# Repository Structure
+
+---
+
+# Repository Structure
 
 flask-app/
 ├── .github/
@@ -32,15 +51,12 @@ flask-app/
 ├── README.md
 └── .gitignore
 
-
 ---
 
 # Branch Structure
 
-
 main
 staging
-
 
 | Branch | Purpose |
 |----------|----------|
@@ -65,9 +81,9 @@ Install the following software before starting.
 
 ---
 
-# Installation Guide
+## Installation Guide
 
-## Install Jenkins
+### Install Jenkins
 
 ### Update Package Lists
 
@@ -121,9 +137,7 @@ sudo systemctl status jenkins
 
 Open your browser:
 
-
 http://localhost:8080
-
 
 Retrieve the initial administrator password:
 
@@ -133,7 +147,7 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 ---
 
-# Install Nginx (Reverse Proxy & Web Server)
+## Install Nginx (Reverse Proxy & Web Server)
 
 ### Install Nginx
 ```bash
@@ -193,7 +207,7 @@ sudo chmod -R 755 /var/www/flask-cicd-app
 
 ---
 
-# Install Git
+## Install Git
 
 ### Update Package Lists
 
@@ -237,7 +251,7 @@ git config --global --list
 
 ---
 
-# Install Python 3
+## Install Python 3
 
 ### Update Package Lists
 
@@ -282,7 +296,15 @@ pytest --version
 
 ---
 
-# Install MongoDB 8.x
+## Install MongoDB 8.x
+
+Official Documentation: <https://www.mongodb.com/docs/v8.0/installation/>
+
+### Check which release of Ubuntu
+
+```bash
+cat /etc/lsb-release
+```
 
 ### Install Dependencies
 
@@ -388,15 +410,11 @@ scp -r . jenkins@jenkins-server-public-ip:/var/www/flask-cicd-app
 
 Configure GitHub Webhook.
 
-
 http://jenkins-server-public-ip:8080/github-webhook/
-
 
 Trigger
 
-
 Push Event
-
 
 ---
 
@@ -409,9 +427,7 @@ Manage Jenkins
 ↓
 Configure System
 
-
 Example
-
 
 SMTP Server
 smtp.gmail.com
@@ -430,9 +446,7 @@ Notifications sent for
 
 ## Workflow Location
 
-
 .github/workflows/ci-cd.yml
-
 
 ---
 
@@ -564,7 +578,6 @@ Secrets and Variables
 ↓
 Actions
 
-
 Create the following secrets.
 
 | Secret | Description |
@@ -580,7 +593,6 @@ Create the following secrets.
 ---
 
 # CI/CD Workflow
-
 
 Developer
 │
@@ -619,7 +631,6 @@ Deploy to Staging
 ↓
 Deploy to Production
 ──────────────────────────────
-
 
 ---
 
