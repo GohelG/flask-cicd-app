@@ -1,0 +1,98 @@
+name: Flask Application CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - staging
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - staging
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest mongomock
+
+      - name: Run Unit Tests
+        env:
+          MONGO_URI: "mongodb://localhost:27017/test_student_db"
+          SECRET_KEY: "temporary_github_action_testing_key"
+        run: |
+          python3 -m pytest -p no:cacheprovider
+
+  deploy-staging:
+    needs: test-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Source Code to Staging Environment via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: \${{ secrets.STAGING_HOST }}
+          username: \${{ secrets.STAGING_USER }}
+          key: \${{ secrets.STAGING_KEY }}
+          source: "."
+          target: \${{ secrets.DEPLOY_PATH }}
+
+      - name: Restart Web Services on Staging
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.STAGING_HOST }}
+          username: \${{ secrets.STAGING_USER }}
+          key: \${{ secrets.STAGING_KEY }}
+          script: |
+            cd \${{ secrets.DEPLOY_PATH }}
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart gunicorn
+
+  deploy-production:
+    needs: test-and-build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Source Code to Production Server
+        uses: appleboy/scp-action@master
+        with:
+          host: \${{ secrets.PRODUCTION_HOST }}
+          username: \${{ secrets.PRODUCTION_USER }}
+          key: \${{ secrets.PRODUCTION_KEY }}
+          source: "."
+          target: \${{ secrets.DEPLOY_PATH }}
+
+      - name: Restart Production Web Stack Engine
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.PRODUCTION_HOST }}
+          username: \${{ secrets.PRODUCTION_USER }}
+          key: \${{ secrets.PRODUCTION_KEY }}
+          script: |
+            cd \${{ secrets.DEPLOY_PATH }}
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart gunicorn
