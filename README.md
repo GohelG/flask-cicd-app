@@ -717,7 +717,8 @@ or publish a GitHub Release.
 
 ---
 
-## Author
-**Gautam Gohel**
+# 👨‍💻 Author
 
-**System Administrator | Cloud Engineer | DevOps Engineer**
+**Gautam Gohil**
+
+System Administrator | SRE Engineer | DevOps & Cloud Enthusiast 🚀
