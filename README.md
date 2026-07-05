@@ -719,7 +719,7 @@ or publish a GitHub Release.
 
 # 👨‍💻 Author
 
-**Gautam Gohil**
+**Gautam Gohel**
 
 System Administrator | SRE Engineer | DevOps & Cloud Enthusiast 🚀
 
